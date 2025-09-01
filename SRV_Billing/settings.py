@@ -159,7 +159,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 MEDIA_ROOT = "Uploads"
 PAGE_SIZE: 100
@@ -169,8 +168,3 @@ CELERY_RESULT_EXTENDED = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 SESSION_COOKIE_NAME = "sessionid" 
 CSRF_COOKIE_NAME = "csrftoken"
-SPECTACULAR_SETTINGS = {
-    "TITLE": "My API",
-    "VERSION": "1.0.0",
-    "SCHEMA_GENERATOR_CLASS": "utils.DebugSchemaGenerator",
-}

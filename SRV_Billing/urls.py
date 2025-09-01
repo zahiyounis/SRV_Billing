@@ -18,7 +18,13 @@ from django.contrib import admin
 from django.urls import path,include
 from rest_framework import routers
 
+from API.views import ManualActionsViewSet
+
 Router = routers.DefaultRouter()
+
+Router.register("tranzila/action", ManualActionsViewSet, basename="tranzila")
+
+
 
 urlpatterns = [
  path("api/", include(Router.urls)),
