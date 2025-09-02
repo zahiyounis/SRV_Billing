@@ -18,14 +18,12 @@ from django.contrib import admin
 from django.urls import path,include
 from rest_framework import routers
 
-from API.views import ManualActionsViewSet
+from API.views import ManualActionsViewSet,InvoicesViewSet
 
 Router = routers.DefaultRouter()
 
 Router.register("tranzila/action", ManualActionsViewSet, basename="tranzila")
-
-
-
+Router.register("tranzila/invoices",InvoicesViewSet,basename="tranzila-invoices")
 urlpatterns = [
  path("api/", include(Router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),

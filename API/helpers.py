@@ -25,7 +25,7 @@ def GenerateTranzilaHeaders(PublicKey, PrivateKey):
 
 
 
-def TranzilaTransactionAPI(EndPoint,Terminal,Body,BaseURL=env("TRANZILA_BASEURL")):
+def TranzilaAPI(EndPoint,Terminal,Body,BaseURL=env("TRANZILA_BASEURL")):
     URL = f"{BaseURL}{EndPoint}"
 
 
@@ -70,7 +70,7 @@ def GetSTOs(Terminal):
     }
     
     EndPoint = "/stos/get"
-    return TranzilaTransactionAPI(EndPoint,Terminal,Body)
+    return TranzilaAPI(EndPoint,Terminal,Body)
 
 
 def GetTransactions(Terminal):
@@ -85,14 +85,38 @@ def GetTransactions(Terminal):
     BaseURL = "https://report.tranzila.com/v1"
     EndPoint = "/transaction"
 
-    return TranzilaTransactionAPI(EndPoint,Terminal,Body,BaseURL)
+    return TranzilaAPI(EndPoint,Terminal,Body,BaseURL)
 
 
     
+def GetTransactionByID(ClientID,Terminal):
+    print("this is the terminall",Terminal)
+    Result = GetTransactions(Terminal)
+    Transactions = Result.get("transactions",[])
+    client_id = str(ClientID).strip()
+
+    ClientTransactions = [tran for tran in Transactions if str(tran.get("user_defined_9") or "").strip() == client_id]
+    
+    print(ClientTransactions)
+    return ClientTransactions
 
 
 
 
+def GetInoviceDoc(Terminal):
+    Body ={
+    "terminal_name": Terminal,
+    "start_date": "2025-08-01",
+    "end_date": "2025-09-30" 
+        }
+    BaseURL = "https://billing5.tranzila.com/api"
+    EndPoint= "/documents_db/get_documents"
+    return TranzilaAPI(EndPoint,Terminal,Body,BaseURL)
+    
+
+def GetInovation(ClinetID,Terminal):
+    res=GetInoviceDoc(Terminal)
+    print(res)
 
 
     
