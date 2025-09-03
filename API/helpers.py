@@ -5,6 +5,7 @@ import binascii,hmac,hashlib,secrets,requests,json
 import environ
 env = environ.Env()
 environ.Env.read_env()
+from rest_framework import exceptions
 
 
 def GenerateTranzilaHeaders(PublicKey, PrivateKey):
@@ -38,10 +39,7 @@ def TranzilaAPI(EndPoint,Terminal,Body,BaseURL=env("TRANZILA_BASEURL")):
         "TRANZILA_ATOK_PRIVATE_KEY"
         if Terminal == "ultranet1atok"
         else "TRANZILA_2P_PRIVATE_KEY"
-    )
-
-
-   
+    )   
     Headers = GenerateTranzilaHeaders(PublicKey, PrivateKey)
     Req = requests.post(URL, headers=Headers, verify=False, data=json.dumps(Body))
     print(Req.text)
@@ -105,7 +103,7 @@ def GetTransactionByID(ClientID,Terminal):
 
 def GetInoviceDoc(Terminal):
     Body ={
-    "terminal_name": Terminal,
+    "terminal_names": [Terminal],
     "start_date": "2025-08-01",
     "end_date": "2025-09-30" 
         }
@@ -119,8 +117,35 @@ def GetInovation(ClinetID,Terminal):
     print(res)
 
 
-    
 
+
+def VerifyCreditCard(ExpDate, CVV, CardNumber, ClientInstance,IDNumber,Terminal="ultranet1atok"):
+    BaseURL = "https://api.tranzila.com/v1"
+    EndPoint = "/transaction/credit_card/create"
+    Body = {
+        "terminal_name": Terminal,
+        "txn_type": "verify",
+        "verify_mode":2,
+        "expire_month": ExpDate.month,
+        "expire_year": ExpDate.year,
+        "cvv": CVV,
+        "card_number": CardNumber,
+        "card_holder_id": IDNumber,
+        "client": {
+            "contact_person": ClientInstance.FullName,
+            "id": ClientInstance.IdNumber,
+            "email": ClientInstance.Email if ClientInstance.Email != "" and ClientInstance.Email is not None else None,
+        },
+        "items": [
+            {"name": "כללי", "type": "I", "unit_price": 1, "units_number": 1}
+        ],
+        "user_defined_fields": [
+            {"name": "client_id", "value": ClientInstance.IdNumber},
+            {"name": "contact", "value": ClientInstance.FullName},
+        ],
+    }
+    return TranzilaAPI(EndPoint,Terminal,Body,BaseURL)
+    
 
 
 

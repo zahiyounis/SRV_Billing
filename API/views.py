@@ -2,6 +2,9 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, mixins, authentication,status
 from rest_framework.decorators import action
+from datetime import date
+from types import SimpleNamespace
+
 
 
 import environ
@@ -9,7 +12,7 @@ env = environ.Env()
 environ.Env.read_env()
 
 
-from .helpers import TranzilaAPI,GetTransactions,GetTransactionByID,GetInovation,GetInoviceDoc
+from .helpers import TranzilaAPI,GetTransactions,GetTransactionByID,GetInovation,GetInoviceDoc,VerifyCreditCard
 # Create your views here.
 
 
@@ -18,7 +21,6 @@ class InvoicesViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
 
         def list(self,request):
             Terminal = request.query_params.get("terminal","ultranet1a")
-            print("valueee",Terminal)
             res = GetInoviceDoc(Terminal)
             return Response(res,200)
             
@@ -31,6 +33,8 @@ class InvoicesViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
              
              res = GetInovation(ClientID,Terminal)
              return Response(res,200)
+        
+
 
 
 
@@ -62,24 +66,29 @@ class ManualActionsViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
     
 
 
-        
-        #@action(detail=False, methods=["get"], url_path="client-transactions")
-        # def client_transactions(self, request, *args, **kwargs):
-        #       res = GetTransactionByID("037404225","ultranet1atok")
-        #       return Response(res,200)
-            #return Response({"status": "ok", "hint": "POST to this endpoint with Tranzila payload to test."})
-        # # create manual 
-        # def create(self, request, *args, **kwargs):
-        #     s = self.get_serializer(data=request.data)
-        #     s.is_valid(raise_exception=True)
-        #     payload = s.validated_data
+class ClientBillingMethodViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
+     permission_classes = [permissions.AllowAny]
+     def create(self, request):
+          dummy_client = SimpleNamespace(
+                    FullName="John Doe",
+                    IdNumber="123456789",
+                    Email="john.doe@example.com"
+                )
+          Data = {
+                "CardExpDate": date(2026, 12, 1),   # Exp: Dec 2026
+                "CardCVV": "123",
+                "CardNumber": "4111111111111111",   # Visa test number
+                "IdNumber": "123456789",
+                "Client": dummy_client
+            }
+          res = VerifyCreditCard(
+            ExpDate=Data["CardExpDate"],
+            CVV=Data["CardCVV"],
+            CardNumber=Data["CardNumber"],
+            ClientInstance=Data["Client"],
+            IDNumber=Data["IdNumber"]
+        )
+          return Response(res)
+                
+     
 
-        #     # Uncomment when ready to call Tranzila
-        #     # resp = TranzilaTransactionAPI(payload)
-        #     # return Response({"ok": True, "tranzila_response": resp}, status=status.HTTP_201_CREATED)
-
-        #     return Response({"ok": True, "received": payload}, status=status.HTTP_201_CREATED)
-   
-
-
-      
