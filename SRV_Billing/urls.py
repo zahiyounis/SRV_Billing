@@ -14,19 +14,34 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from rest_framework import routers
 
-from API.views import ManualActionsViewSet,InvoicesViewSet,ClientBillingMethodViewSet
+from Tests.Tranzila import (
+    ManualActionsViewSet,
+    InvoicesViewSet,
+    ClientBillingMethodViewSet,
+    PaymentMethodViewSet,
+)
 
 Router = routers.DefaultRouter()
 
 Router.register("tranzila/action", ManualActionsViewSet, basename="tranzila")
-Router.register("tranzila/invoices",InvoicesViewSet,basename="tranzila-invoices")
-Router.register("tranzila/billing",ClientBillingMethodViewSet,basename="tranzila-billing")
+Router.register("tranzila/invoices", InvoicesViewSet, basename="tranzila-invoices")
+Router.register(
+    "tranzila/billing", ClientBillingMethodViewSet, basename="tranzila-billing"
+)
+Router.register(
+    "tranzila/payment-request",
+    PaymentMethodViewSet,
+    basename="tranzila-payment-request",
+)
+
+Router.register("pay", ManualActionsViewSet, basename="billing-pay")
 urlpatterns = [
- path("api/", include(Router.urls)),
+    path("api/", include(Router.urls)),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
 ]
